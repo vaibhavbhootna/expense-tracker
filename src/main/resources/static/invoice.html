@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .invoice-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 20px;
+            width: 600px;
+            transition: transform 0.2s;
+        }
+
+        .invoice-card:hover {
+            transform: scale(1.05);
+        }
+
+        .invoice-header {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .invoice-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .invoice-details label {
+            font-weight: bold;
+        }
+
+        .expand-button {
+            cursor: pointer;
+            color: #007bff;
+            text-decoration: underline;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px; /* Adjust margin as needed */
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<!-- Loop through JSON data to create invoice cards -->
+<script>
+    async function fetchInvoices() {
+        try {
+            const response = await fetch('http://localhost:8080/get-all-invoices?range=today');
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const invoices = await response.json();
+            // Create invoice cards
+            invoices.forEach(invoice => {
+                const card = document.createElement('div');
+                card.className = 'invoice-card';
+
+                // Display minimum info
+                const header = document.createElement('div');
+                header.className = 'invoice-header';
+                header.textContent = `Invoice #${invoice.id}`;
+                card.appendChild(header);
+
+                const details = document.createElement('div');
+                details.className = 'invoice-details';
+                details.innerHTML = `
+                <label>Store Name:</label> ${invoice.invoiceDetails.storeName}<br>
+                <label>Store Address:</label> ${invoice.invoiceDetails.storeAddress}<br>
+                <label>Invoice Number:</label> ${invoice.invoiceDetails.invoiceNumber}<br>
+                <label>Invoice DateTime:</label> ${new Date(invoice.invoiceDetails.invoiceDateTime).toLocaleString()}<br>
+                <label>Total Amount:</label> ${invoice.invoiceDetails.totalAmount}<br>
+                <span class="expand-button" onclick="expandDetails('hidden-' +  ${invoice.id} )">Expand Details</span>
+            `;
+                card.appendChild(details);
+
+                // Display additional details (initially hidden)
+                const hiddenDetails = document.createElement('table');
+                hiddenDetails.id  = 'hidden-' + invoice.id;
+                hiddenDetails.className = 'hidden';
+                let modalContent = '';
+                let headerRow = false
+                for (const [itemKey, itemValue] of Object.entries(invoice.invoiceDetails.items)) {
+                    if (!headerRow) {
+                    modalContent += '<tr>'
+                    for (const [key, value] of Object.entries(itemValue)) {
+                        modalContent += `<td>${key}</td>`;
+                    }
+                    modalContent += '</tr>';
+                    headerRow = true
+                    }
+                    modalContent += '<tr>';
+                    for (const [key, value] of Object.entries(itemValue)) {
+                        modalContent += `<td>${value}</td>`;
+                    }
+                    modalContent += '<tr/>'
+                }
+                hiddenDetails.innerHTML = modalContent;
+                card.appendChild(hiddenDetails);
+
+                document.body.appendChild(card);
+            });
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    }
+
+
+
+    // Function to toggle visibility of additional details
+    function expandDetails(id) {
+        const hiddenDetails = document.querySelector('#' + id);
+        hiddenDetails.classList.toggle('hidden');
+    }
+
+    fetchInvoices();
+</script>
+</body>
+</html>

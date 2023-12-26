@@ -1,0 +1,46 @@
+package ai.vaibhav.expensetracker.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class Invoice {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private LocalDateTime invoiceUploadDate;
+
+    private String uploadedBy;
+
+    private String uploadSource = "WEB";
+
+    private String uploadType;
+
+    @OneToOne(mappedBy = "invoice", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Image invoiceImage;
+
+    @OneToOne(mappedBy = "invoice", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private InvoiceDetails invoiceDetails;
+
+    private String ocrStatus;
+
+    private String ocrApi;
+
+    private Integer retry = 0;
+
+    private InvoiceStatus status;
+
+    @JsonIgnore
+    private String ocrRawResponse;
+
+}

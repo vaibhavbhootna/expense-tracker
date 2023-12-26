@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaibhav Invoice Hub</title>
+
+    <!-- Add Bootstrap CSS (change the URL to the actual Bootstrap CSS file) -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<h1>Vaibhav Invoice Hub</h1>
+
+<form id="uploadForm" enctype="multipart/form-data">
+    <label for="fileInput">Select or Capture an image:</label>
+    <input type="file" id="fileInput" name="image" accept="image/*" multiple="multiple">
+</form>
+
+<!-- Bootstrap Modal for displaying API response -->
+<div class="modal" id="apiResponseModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">API Response</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body" id="apiResponseContent">
+                <!-- API response content will be displayed here -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Add Bootstrap JS and jQuery (change the URLs to the actual Bootstrap JS and jQuery files) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    document.getElementById('fileInput').addEventListener('change', function () {
+        // Get the selected file
+        const fileInput = document.getElementById('fileInput');
+
+        // Create a FormData object and append the file to it
+        const formData = new FormData();
+        const files = fileInput.files;
+
+        for (let i = 0; i < files.length; i++) {
+            formData.append('file', files[i]);
+        }
+
+        // Replace 'API_ENDPOINT' with the actual API endpoint URL
+        const apiEndpoint = '/upload-invoices';
+
+        // Make a POST request to the API endpoint
+        fetch(apiEndpoint, {
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Build the HTML content for the modal
+                let modalContent = '';
+
+                for (const [key, value] of Object.entries(data)) {
+                    modalContent += `<strong>${key}:</strong> ${value}<br>`;
+                }
+
+                // Update the modal content
+                document.getElementById('apiResponseContent').innerHTML = modalContent;
+
+                // Show the modal
+                $('#apiResponseModal').modal('show');
+                fileInput.value = null;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error occurred while uploading image and calling API.');
+            });
+    });
+</script>
+
+</body>
+</html>

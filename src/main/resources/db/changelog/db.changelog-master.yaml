@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      author: Vaibhav
+      id: init_db
+      changes:
+        - sqlFile:
+            path: ddl.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            endDelimiter: ';'

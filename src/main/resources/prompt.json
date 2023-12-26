@@ -1,0 +1,42 @@
+{
+  "contents": [
+    {
+      "parts": [
+        {
+          "inlineData": {
+            "mimeType": "image/jpeg",
+            "data": "${image}"
+          }
+        },
+        {
+          "text": "You are an expert admin person who will extract core information from bills, invoice, receipt. \nAbove is the image; please try to extract below data points from the content above. \n\nStore Name\nStore Address\nStore Phone Number\nStore Type\nItem Name\nItem Quantity\nItem Price\nSub total\nTotal Amount\nPayment Mode\nInvoice Number\nInvoice Date Time\nCurrency\n\nKeep in mind\nMaintain date format YYYY-MM-dd hh:mm:ss for all the  dates.\nPerform spelling correction.\n Always return json array of items. \n Json Object key should follow camel case.\n\nNow please extract details from the content and export in a JSON array format, don't change the dataPoints names in the json. return ONLY the JSON array"
+        }
+      ]
+    }
+  ],
+  "generationConfig": {
+    "temperature": 0.4,
+    "topK": 32,
+    "topP": 1,
+    "maxOutputTokens": 4096,
+    "stopSequences": []
+  },
+  "safetySettings": [
+    {
+      "category": "HARM_CATEGORY_HARASSMENT",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+      "category": "HARM_CATEGORY_HATE_SPEECH",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+      "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    },
+    {
+      "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+      "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+    }
+  ]
+}
