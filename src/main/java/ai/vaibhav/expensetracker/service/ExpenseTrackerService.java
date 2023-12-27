@@ -104,4 +104,8 @@ public class ExpenseTrackerService {
         }
         return Optional.empty();
     }
+
+    public void deleteInvoice(Long invoiceId) {
+        invoiceRepository.deleteById(invoiceId);
+    }
 }

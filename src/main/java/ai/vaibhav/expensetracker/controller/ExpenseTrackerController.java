@@ -92,4 +92,10 @@ public class ExpenseTrackerController {
         }
     }
 
+    @DeleteMapping(value = "/delete-invoice/{id}", produces = "application/json")
+    public ResponseEntity deleteInvoice(@PathVariable(name = "id") Long invoiceId){
+        expenseTrackerService.deleteInvoice(invoiceId);
+        return ResponseEntity.ok().body("Deleted");
+    }
+
 }
