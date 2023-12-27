@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -29,15 +30,14 @@ public class InvoiceProcessorService {
     private final InvoiceRepository invoiceRepository;
     private final GooglePalmService googlePalmService;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 */1 * ? * *")
     @Transactional
     public void processInvoices(){
-        List<Invoice> pendingInvoices = invoiceRepository.findByOcrStatus("PENDING");
+        List<Invoice> pendingInvoices = invoiceRepository.findByOcrStatus("PENDING", PageRequest.of(0, 2));
         pendingInvoices.forEach(this::processInvoice);
     }
 
     @Transactional
-    @Async
     public Invoice processInvoice(Invoice invoice) {
         String response = googlePalmService.readInvoice(invoice.getInvoiceImage().getFileData());
         InvoiceDetailsDto invoiceDetailsDto;

@@ -62,7 +62,7 @@ public class ExpenseTrackerService {
         invoice.setInvoiceImage(image);
         image.setInvoice(invoice);
         invoice = invoiceRepository.saveAndFlush(invoice);
-        return invoiceProcessorService.processInvoice(invoice);
+        return invoice;
     }
 
     @Transactional(readOnly = true)
@@ -96,7 +96,6 @@ public class ExpenseTrackerService {
     public Optional<Invoice> reprocessInvoiceId(Long invoiceId) {
         Optional<Invoice> invoice = invoiceRepository.findById(invoiceId);
         clearExistingResults(invoice);
-        invoice.ifPresent(invoiceProcessorService::processInvoice);
         return invoice;
     }
 
