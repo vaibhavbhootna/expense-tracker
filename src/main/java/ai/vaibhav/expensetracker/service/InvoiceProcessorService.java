@@ -31,13 +31,13 @@ public class InvoiceProcessorService {
 
     @Scheduled(cron = "0 0 0 * * *")
     @Transactional
-    @Async
     public void processInvoices(){
         List<Invoice> pendingInvoices = invoiceRepository.findByOcrStatus("PENDING");
         pendingInvoices.forEach(this::processInvoice);
     }
 
     @Transactional
+    @Async
     public Invoice processInvoice(Invoice invoice) {
         String response = googlePalmService.readInvoice(invoice.getInvoiceImage().getFileData());
         InvoiceDetailsDto invoiceDetailsDto;

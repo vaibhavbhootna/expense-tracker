@@ -34,6 +34,7 @@ public class ExpenseTrackerService {
         List<Invoice> invoices = new ArrayList<>();
         for(MultipartFile file : multipartFileList) {
             try {
+             log.info("File {}: Size {}", file.getOriginalFilename(),file.getSize());
             Image image = new Image(null,
                     Base64.getEncoder().encodeToString(file.getBytes()), file.getOriginalFilename(), file.getSize(), file.getContentType(), null);
             Invoice invoice = saveInvoice(image);
@@ -44,7 +45,6 @@ public class ExpenseTrackerService {
                 log.error("Fail to save image {}.", file.getName(), sqlException);
             }
         }
-        invoiceProcessorService.processInvoices();
         return invoices.stream().map(Invoice :: getId).collect(Collectors.toSet());
     }
 
