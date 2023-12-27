@@ -21,7 +21,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin: 20px;
             padding: 20px;
-            width: 600px;
+            width: 500px;
             transition: transform 0.2s;
         }
 
@@ -30,7 +30,7 @@
         }
 
         .invoice-header {
-            font-size: 1.2rem;
+            font-size: 1rem;
             font-weight: bold;
             margin-bottom: 10px;
         }
@@ -68,6 +68,11 @@
         .hidden {
             display: none;
         }
+
+        .imageContainer > img:hover {
+            width: 50%;
+            height: 50%;
+        }
     </style>
 </head>
 <body>
@@ -75,7 +80,7 @@
 <script>
     async function fetchInvoices() {
         try {
-            const response = await fetch('http://localhost:8080/get-all-invoices?range=today');
+            const response = await fetch('/get-all-invoices?range=thisMonth');
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
@@ -90,17 +95,17 @@
                 // Display minimum info
                 const header = document.createElement('div');
                 header.className = 'invoice-header';
-                header.textContent = `Invoice #${invoice.id}`;
+                header.textContent = `${invoice.invoiceDetails.storeName} #${invoice.invoiceDetails.invoiceNumber}`;
                 card.appendChild(header);
 
                 const details = document.createElement('div');
                 details.className = 'invoice-details';
                 details.innerHTML = `
-                <label>Store Name:</label> ${invoice.invoiceDetails.storeName}<br>
-                <label>Store Address:</label> ${invoice.invoiceDetails.storeAddress}<br>
-                <label>Invoice Number:</label> ${invoice.invoiceDetails.invoiceNumber}<br>
-                <label>Invoice DateTime:</label> ${new Date(invoice.invoiceDetails.invoiceDateTime).toLocaleString()}<br>
-                <label>Total Amount:</label> ${invoice.invoiceDetails.totalAmount}<br>
+                <div class="imageContainer">
+                    <img src="data:image/png;base64,${invoice.invoiceImage.fileData}" width="100px"/>
+                </div>
+                <label>Invoice DateTime:</label> ${formatInvoiceDate(invoice.invoiceDetails.invoiceDateTime)}<br>
+                <label>Amount:</label> ${invoice.invoiceDetails.totalAmount}<br>
                 <span class="expand-button" onclick="expandDetails('hidden-' +  ${invoice.id} )">Expand Details</span>
             `;
                 card.appendChild(details);
@@ -142,6 +147,20 @@
     function expandDetails(id) {
         const hiddenDetails = document.querySelector('#' + id);
         hiddenDetails.classList.toggle('hidden');
+    }
+
+    function formatInvoiceDate(invoiceDateTime) {
+        const options = {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        };
+        const formattedDate = new Intl.DateTimeFormat('en-US', options).format(new Date(invoiceDateTime));
+
+        return formattedDate;
     }
 
     fetchInvoices();

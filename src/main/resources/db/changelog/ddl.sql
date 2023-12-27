@@ -63,7 +63,7 @@ create table public.invoice_item
 (
     item_price         double precision,
     item_quantity      integer,
-    item_sub_total     double precision,
+    item_amount     double precision,
     id                 bigserial
         primary key,
     invoice_details_id bigint

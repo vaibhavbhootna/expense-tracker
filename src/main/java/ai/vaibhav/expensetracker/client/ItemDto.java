@@ -6,7 +6,7 @@ import lombok.Data;
 public class ItemDto{
     public String itemName;
     public int itemQuantity;
-    public double itemSubTotal;
+    public double itemAmount;
     public double itemPrice;
 }
 

@@ -16,7 +16,14 @@ public interface InvoiceMapper {
     InvoiceItem toEntity (ItemDto source);
 
     default LocalDateTime convertStringToLocalDateTime(String dateTimeString) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.parse(dateTimeString, formatter);
+        if(dateTimeString != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            try {
+                return LocalDateTime.parse(dateTimeString, formatter);
+            }catch (Exception exception){
+                return null;
+            }
+        }
+        return null;
     }
 }

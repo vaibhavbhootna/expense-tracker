@@ -63,8 +63,8 @@ public class ExpenseTrackerController {
     }
 
     @GetMapping(value = "/get-all-invoices", produces = "application/json")
-    public ResponseEntity getAllInvoice(String range){
-        List<Invoice> response = expenseTrackerService.getAllInvoice(range);
+    public ResponseEntity getAllInvoice(String range, String status){
+        List<Invoice> response = expenseTrackerService.getAllInvoice(range, status);
         if(response == null){
             return ResponseEntity.badRequest().body(Map.of("error", "Unable to read image"));
         }else{

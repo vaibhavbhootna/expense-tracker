@@ -19,7 +19,6 @@ public class Image {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@JsonIgnore
 	private String fileData;
 
 	private String fileName;

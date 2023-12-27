@@ -60,7 +60,13 @@ public class ExpenseTrackerService {
     }
 
     @Transactional(readOnly = true)
-    public List<Invoice> getAllInvoice(String criteria) {
+    public List<Invoice> getAllInvoice(String criteria, String status) {
+        InvoiceStatus invoiceStatus;
+        if(status == null){
+            invoiceStatus = InvoiceStatus.PROCESSED;
+        }else{
+            invoiceStatus = InvoiceStatus.valueOf(status);
+        }
         LocalDateTime startDate;
         if ("today".equalsIgnoreCase(criteria)) {
             startDate = LocalDate.now().atStartOfDay();
@@ -69,9 +75,9 @@ public class ExpenseTrackerService {
         } else if ("thisMonth".equalsIgnoreCase(criteria)) {
             startDate = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         } else {
-            startDate = LocalDate.now().atStartOfDay();
+            startDate = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         }
-        return invoiceRepository.findByInvoiceUploadDateAfter(startDate);
+        return invoiceRepository.findInvoices(startDate, invoiceStatus);
     }
 
     @Transactional(readOnly = true)

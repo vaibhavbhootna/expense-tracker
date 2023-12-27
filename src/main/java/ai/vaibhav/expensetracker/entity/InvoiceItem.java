@@ -13,7 +13,7 @@ public class InvoiceItem {
     private Long id;
     public String itemName;
     public Integer itemQuantity;
-    public Double itemSubTotal;
+    public Double itemAmount;
     public Double itemPrice;
 
     @JsonIgnore

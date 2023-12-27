@@ -29,7 +29,7 @@ public class InvoiceProcessorService {
     private final InvoiceRepository invoiceRepository;
     private final GooglePalmService googlePalmService;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 0 0 * * *")
     @Transactional
     @Async
     public void processInvoices(){
@@ -50,6 +50,7 @@ public class InvoiceProcessorService {
                 invoiceDetails.setInvoice(invoice);
                 invoice.setInvoiceDetails(invoiceDetails);
                 invoice.setOcrStatus("SUCCESS");
+                invoice.setStatus(InvoiceStatus.PROCESSED);
                 CollectionUtils.emptyIfNull(invoiceDetails.getItems()).forEach(i -> i.setInvoiceDetails(invoiceDetails));
             }else{
                 invoice.setStatus(InvoiceStatus.PROCESSED);
@@ -63,6 +64,6 @@ public class InvoiceProcessorService {
                 invoice.setRetry(invoice.getRetry() + 1);
             }
         }
-        return invoiceRepository.save(invoice);
+        return invoiceRepository.saveAndFlush(invoice);
     }
 }

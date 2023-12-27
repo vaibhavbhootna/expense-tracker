@@ -2,6 +2,7 @@ databaseChangeLog:
   - changeSet:
       author: Vaibhav
       id: init_db
+      validCheckSum: any
       changes:
         - sqlFile:
             path: ddl.sql
