@@ -80,7 +80,7 @@
 <script>
     async function fetchInvoices() {
         try {
-            const response = await fetch('/get-all-invoices?range=thisMonth');
+            const response = await fetch('get-all-invoices?range=thisMonth');
 
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);

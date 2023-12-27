@@ -7,12 +7,16 @@ import okhttp3.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Base64;
 import java.util.concurrent.TimeUnit;
@@ -93,9 +97,13 @@ public class GooglePalmService {
 
     public static String readFile(String fileName){
         try {
-            File file = ResourceUtils.getFile("classpath:"+fileName);
-            return new String(Files.readAllBytes(file.toPath()));
+            ClassPathResource resource = new ClassPathResource(fileName);
+            InputStream inputStream = resource.getInputStream();
+            // Use FileCopyUtils to read the InputStream into a String
+            return new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+
         } catch (IOException e) {
+            log.error("Unable to find file",e);
            return null;
         }
     }
