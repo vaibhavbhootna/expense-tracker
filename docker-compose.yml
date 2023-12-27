@@ -1,11 +1,14 @@
 version: '3'
 
 services:
+
   postgres:
     build:
       dockerfile: Dockerfile.postgres
     ports:
       - "5432:5432"
+    networks:
+      - mynetwork
 
   springboot:
     build:
@@ -14,3 +17,9 @@ services:
       - "3000:3000"
     depends_on:
       - postgres
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+    driver: bridge
