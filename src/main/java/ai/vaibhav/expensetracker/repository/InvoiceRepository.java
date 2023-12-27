@@ -16,8 +16,8 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     List<Invoice> findByOcrStatus(String status, Pageable pageable);
     List<Invoice> findByInvoiceUploadDateAfterAndStatusOrderByIdDesc(LocalDateTime localDateTime, InvoiceStatus status);
 
-    @Query("from Invoice where invoiceUploadDate>:invoiceUploadDate and status=:status order by invoiceDetails.invoiceDateTime desc ")
-    List<Invoice> findInvoices(LocalDateTime invoiceUploadDate, InvoiceStatus status);
+    @Query("from Invoice where invoiceUploadDate>:invoiceUploadDate order by invoiceDetails.invoiceDateTime desc ")
+    List<Invoice> findInvoices(LocalDateTime invoiceUploadDate);
 
     List<Invoice> findByInvoiceDetails_InvoiceDateTimeAfter(LocalDateTime localDateTime);
 }

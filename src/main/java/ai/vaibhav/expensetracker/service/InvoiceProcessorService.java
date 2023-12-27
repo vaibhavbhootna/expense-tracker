@@ -40,6 +40,7 @@ public class InvoiceProcessorService {
     @Transactional
     public Invoice processInvoice(Invoice invoice) {
         String response = googlePalmService.readInvoice(invoice.getInvoiceImage().getFileData());
+        log.info("Google Palm API response {}", response);
         InvoiceDetailsDto invoiceDetailsDto;
         invoice.setOcrApi("GOOGLE_PALM");
         invoice.setOcrRawResponse(response);

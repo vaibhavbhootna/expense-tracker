@@ -62,7 +62,6 @@ public class GooglePalmService {
     private static String extractResponse(Response response) throws IOException {
         if(response != null && response.body() != null) {
             String responseString = response.body().string();
-            log.info("Google Palm API response {}", responseString);
             JSONObject jsonObject = new JSONObject(responseString);
             JSONArray candidates = jsonObject.getJSONArray("candidates");
             JSONObject content = candidates.getJSONObject(0).getJSONObject("content");
