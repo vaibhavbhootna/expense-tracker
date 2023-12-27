@@ -12,7 +12,7 @@ public class InvoiceItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     public String itemName;
-    public Integer itemQuantity;
+    public Double itemQuantity;
     public Double itemAmount;
     public Double itemPrice;
 

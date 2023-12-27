@@ -95,7 +95,7 @@
                 // Display minimum info
                 const header = document.createElement('div');
                 header.className = 'invoice-header';
-                header.textContent = `${invoice.invoiceDetails.storeName} #${invoice.invoiceDetails.invoiceNumber}`;
+                header.textContent = `${invoice.invoiceDetails.storeName} #${invoice.id}`;
                 card.appendChild(header);
 
                 const details = document.createElement('div');
@@ -105,6 +105,7 @@
                     <img src="data:image/png;base64,${invoice.invoiceImage.fileData}" width="100px"/>
                 </div>
                 <label>Invoice DateTime:</label> ${formatInvoiceDate(invoice.invoiceDetails.invoiceDateTime)}<br>
+                <label>Invoice Number:</label> ${invoice.invoiceDetails.invoiceDateTime}<br>
                 <label>Amount:</label> ${invoice.invoiceDetails.totalAmount}<br>
                 <span class="expand-button" onclick="expandDetails('hidden-' +  ${invoice.id} )">Expand Details</span>
             `;
