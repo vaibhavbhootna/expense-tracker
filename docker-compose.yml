@@ -3,14 +3,12 @@ version: '3'
 services:
   postgres:
     build:
-      context: docker
       dockerfile: Dockerfile.postgres
     ports:
       - "5432:5432"
 
   springboot:
     build:
-      context: docker
       dockerfile: Dockerfile.expense-tracker
     ports:
       - "3000:3000"
