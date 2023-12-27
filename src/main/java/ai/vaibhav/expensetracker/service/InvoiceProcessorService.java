@@ -34,7 +34,7 @@ public class InvoiceProcessorService {
     @Async
     public void processInvoices(){
         List<Invoice> pendingInvoices = invoiceRepository.findByOcrStatus("PENDING");
-        pendingInvoices.forEach(i -> this.processInvoice(i));
+        pendingInvoices.forEach(this::processInvoice);
     }
 
     @Transactional

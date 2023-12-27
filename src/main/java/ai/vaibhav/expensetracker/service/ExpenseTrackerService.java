@@ -33,30 +33,36 @@ public class ExpenseTrackerService {
     public Set<Long> uploadInvoices(List<MultipartFile> multipartFileList) {
         List<Invoice> invoices = new ArrayList<>();
         for(MultipartFile file : multipartFileList) {
-            Image image;
             try {
-                Invoice invoice = Invoice.builder()
-                        .invoiceUploadDate(LocalDateTime.now())
-                        .uploadType("QUICK_UPLOAD")
-                        .uploadedBy("ADMIN")
-                        .uploadSource("WEB")
-                        .status(InvoiceStatus.UPLOADED)
-                        .ocrStatus("PENDING")
-                        .retry(0)
-                        .build();
-                image = new Image(null,
-                        Base64.getEncoder().encodeToString(file.getBytes()), file.getOriginalFilename(), file.getSize(), file.getContentType(), invoice);
-                invoice.setInvoiceImage(image);
-                invoice = invoiceRepository.saveAndFlush(invoice);
-                invoices.add(invoice);
+            Image image = new Image(null,
+                    Base64.getEncoder().encodeToString(file.getBytes()), file.getOriginalFilename(), file.getSize(), file.getContentType(), null);
+            Invoice invoice = saveInvoice(image);
+            invoices.add(invoice);
             } catch (IOException e) {
                 log.error("Fail to save image {}", file.getName(), e);
             } catch (Exception sqlException){
-                log.error("Fail to save image {}. Error {}", file.getName(), sqlException);
+                log.error("Fail to save image {}.", file.getName(), sqlException);
             }
         }
         invoiceProcessorService.processInvoices();
         return invoices.stream().map(Invoice :: getId).collect(Collectors.toSet());
+    }
+
+    @Transactional
+    public Invoice saveInvoice(Image image) {
+        Invoice invoice = Invoice.builder()
+                .invoiceUploadDate(LocalDateTime.now())
+                .uploadType("QUICK_UPLOAD")
+                .uploadedBy("ADMIN")
+                .uploadSource("WEB")
+                .status(InvoiceStatus.UPLOADED)
+                .ocrStatus("PENDING")
+                .retry(0)
+                .build();
+        invoice.setInvoiceImage(image);
+        image.setInvoice(invoice);
+        invoice = invoiceRepository.saveAndFlush(invoice);
+        return invoiceProcessorService.processInvoice(invoice);
     }
 
     @Transactional(readOnly = true)
