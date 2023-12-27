@@ -1,5 +1,5 @@
 # Use the official PostgreSQL image from Docker Hub
-FROM postgres:latest
+FROM postgres:16.1-alpine
 
 # Set the environment variables for PostgreSQL
 ENV POSTGRES_DB=expense_tracker
@@ -8,3 +8,6 @@ ENV POSTGRES_PASSWORD=admin
 
 # Expose the default PostgreSQL port
 EXPOSE 5432
+
+VOLUME /var/lib/postgresql/data
+
