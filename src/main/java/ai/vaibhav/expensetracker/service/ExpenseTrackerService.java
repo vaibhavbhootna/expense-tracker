@@ -37,7 +37,7 @@ public class ExpenseTrackerService {
              log.info("File {}: Size {}", file.getOriginalFilename(),file.getSize());
             Image image = new Image(null,
                     Base64.getEncoder().encodeToString(file.getBytes()), file.getOriginalFilename(), file.getSize(), file.getContentType(), null);
-            Invoice invoice = saveInvoice(image);
+            Invoice invoice = saveInvoice(image, "ADMIN", "WEB");
             invoices.add(invoice);
             } catch (IOException e) {
                 log.error("Fail to save image {}", file.getName(), e);
@@ -49,12 +49,12 @@ public class ExpenseTrackerService {
     }
 
     @Transactional
-    public Invoice saveInvoice(Image image) {
+    public Invoice saveInvoice(Image image, String name, String source) {
         Invoice invoice = Invoice.builder()
                 .invoiceUploadDate(LocalDateTime.now())
                 .uploadType("QUICK_UPLOAD")
-                .uploadedBy("ADMIN")
-                .uploadSource("WEB")
+                .uploadedBy(name)
+                .uploadSource(source)
                 .status(InvoiceStatus.UPLOADED)
                 .ocrStatus("PENDING")
                 .retry(0)

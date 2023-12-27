@@ -45,7 +45,9 @@ public class InvoiceReaderBot extends TelegramLongPollingBot {
                     Image image = new Image(null,
                             Base64.getEncoder().encodeToString(fileContent), imageFile.getName(), imageFile.length(),
                             FilenameUtils.getExtension(imageFile.getName()), null);
-                    Invoice invoice = expenseTrackerService.saveInvoice(image);
+                    String senderName = update.getMessage().getChat().getFirstName()
+                            + " " + update.getMessage().getChat().getLastName();
+                    Invoice invoice = expenseTrackerService.saveInvoice(image, senderName, "TELEGRAM");
                     sendReply(update.getMessage(), "Invoice saved. Status " + invoice);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
