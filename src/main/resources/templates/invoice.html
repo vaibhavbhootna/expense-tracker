@@ -105,7 +105,7 @@
                     <img src="data:image/png;base64,${invoice.invoiceImage.fileData}" width="100px"/>
                 </div>
                 <label>Invoice DateTime:</label> ${formatInvoiceDate(invoice.invoiceDetails.invoiceDateTime)}<br>
-                <label>Invoice Number:</label> ${invoice.invoiceDetails.invoiceDateTime}<br>
+                <label>Invoice Number:</label> ${invoice.invoiceDetails.invoiceNumber}<br>
                 <label>Amount:</label> ${invoice.invoiceDetails.totalAmount}<br>
                 <span class="expand-button" onclick="expandDetails('hidden-' +  ${invoice.id} )">Expand Details</span>
             `;
