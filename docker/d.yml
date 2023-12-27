@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
+    ports:
+      - "5432:5432"
+
+  springboot:
+    build:
+      context: .
+      dockerfile: Docker.expense-tracker
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
