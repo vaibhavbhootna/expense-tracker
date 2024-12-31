@@ -1,5 +1,6 @@
 package ai.vaibhav.expensetracker.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +19,7 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonFormat(pattern = "yyyy-MM-dd hh::mm")
     private LocalDateTime invoiceUploadDate;
 
     private String uploadedBy;

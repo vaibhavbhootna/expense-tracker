@@ -1,5 +1,6 @@
 package ai.vaibhav.expensetracker.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -8,7 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Entity(name = "INVOICE_DETAILS")
+@Entity
+@Table(name = "INVOICE_DETAILS")
 public class InvoiceDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +26,7 @@ public class InvoiceDetails {
     public String storeAddress;
     public String paymentMode;
     public String invoiceNumber;
+    @JsonFormat(pattern = "yyyy-MM-dd")
     public LocalDateTime invoiceDateTime;
     public Double rounding;
     public String storeName;

@@ -48,7 +48,7 @@ public class GooglePalmService {
             MediaType mediaType = MediaType.parse("application/json");
             RequestBody body = RequestBody.create(mediaType, json);
             Request request = new Request.Builder()
-                    .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=" + apiKey)
+                    .url("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey)
                     .method("POST", body)
                     .addHeader("Content-Type", "application/json")
                     .build();
@@ -88,9 +88,12 @@ public class GooglePalmService {
     }
 
     private String prepareRequest(String base64Image){
+        String prompt = readFile("prompt.txt");
         String json = readFile("prompt.json");
-        if(json != null) {
-            return json.replace("${image}", base64Image);
+        if(json != null && prompt != null) {
+            String promptJson = json.replace("${image}", base64Image);
+            promptJson = promptJson.replace("${promptText}", prompt);
+            return promptJson;
         }
         return null;
     }

@@ -18,3 +18,23 @@ databaseChangeLog:
             newDataType: DOUBLE PRECISION
             tableName: invoice_item
             schema: public
+  - changeSet:
+      id: add_item_common_name
+      author: Vaibhav
+      changes:
+        - addColumn:
+            tableName: invoice_item
+            columns:
+              - column:
+                  name: item_common_name
+                  type: varchar(255)
+  - changeSet:
+      id: add_item_weight
+      author: Vaibhav
+      changes:
+        - addColumn:
+            tableName: invoice_item
+            columns:
+              - column:
+                  name: item_weight
+                  type: varchar(255)

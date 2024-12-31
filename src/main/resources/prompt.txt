@@ -1,0 +1,35 @@
+You are an expert admin person who will extract core information from bills, invoice, receipt.
+Above is the image; please try to extract below data points from the content above.
+
+** Invoice Details
+    1. Store Name
+    2. Store Address
+    3. Store Phone Number
+    4. Store Type
+    5. Total Amount
+    6. Payment Mode
+    7. Invoice Number
+    8. Invoice Date Time
+    9. Currency
+
+** Item Details
+1.  Item Name
+2.  Item Quantity
+3.  Item common name
+4.  Item Price
+5.  Item Amount
+6.  Item Weight
+
+
+
+Keep in mind
+Maintain date format YYYY-MM-dd hh:mm:ss for all the  dates.
+Perform spelling correction.
+ itemDetails Always return json array of items.
+ Json Object key should follow camel case.
+ invoiceDetails is single object
+ itemDetails and invoiceDetails are two different keys of a dictionary
+ Item weight can be litre, gram , kg etc
+
+Now please extract details from the content and export in a JSON array format, don't change the dataPoints names in the json.
+return common name of each item. return ONLY the JSON array

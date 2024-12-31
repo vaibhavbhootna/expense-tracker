@@ -18,6 +18,6 @@ public class InvoiceDetailsDto {
     public String currency;
     public double subTotal;
     public String storePhoneNumber;
-    public List<ItemDto> items;
+
 
 }

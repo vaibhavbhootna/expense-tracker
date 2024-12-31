@@ -5,6 +5,7 @@ import ai.vaibhav.expensetracker.entity.InvoiceStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -20,4 +21,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     List<Invoice> findInvoices(LocalDateTime invoiceUploadDate);
 
     List<Invoice> findByInvoiceDetails_InvoiceDateTimeAfter(LocalDateTime localDateTime);
+
+
 }

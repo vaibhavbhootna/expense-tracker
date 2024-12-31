@@ -9,7 +9,7 @@
           }
         },
         {
-          "text": "You are an expert admin person who will extract core information from bills, invoice, receipt. \nAbove is the image; please try to extract below data points from the content above. \n\nStore Name\nStore Address\nStore Phone Number\nStore Type\nItem Name\nItem Quantity\nItem Price\nItem Amount\nTotal Amount\nPayment Mode\nInvoice Number\nInvoice Date Time\nCurrency\n\nKeep in mind\nMaintain date format YYYY-MM-dd hh:mm:ss for all the  dates.\nPerform spelling correction.\n Always return json array of items. \n Json Object key should follow camel case.\n\nNow please extract details from the content and export in a JSON array format, don't change the dataPoints names in the json. return ONLY the JSON array"
+          "text": "${promptText}"
         }
       ]
     }

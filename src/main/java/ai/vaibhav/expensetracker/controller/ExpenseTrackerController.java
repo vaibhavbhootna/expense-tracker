@@ -1,5 +1,6 @@
 package ai.vaibhav.expensetracker.controller;
 
+import ai.vaibhav.expensetracker.dto.Summary;
 import ai.vaibhav.expensetracker.entity.Invoice;
 import ai.vaibhav.expensetracker.service.ExpenseTrackerService;
 import ai.vaibhav.expensetracker.service.GooglePalmService;
@@ -72,6 +73,16 @@ public class ExpenseTrackerController {
         }
     }
 
+    @GetMapping(value = "/get-summary", produces = "application/json")
+    public ResponseEntity getSummary(@RequestBody(required = false) Summary summary){
+        Summary response = expenseTrackerService.getSummary(summary);
+        if(response == null){
+            return ResponseEntity.badRequest().body(Map.of("error", "Unable to read image"));
+        }else{
+            return ResponseEntity.ok(response);
+        }
+    }
+
     @GetMapping(value = "/get-invoice/{id}", produces = "application/json")
     public ResponseEntity getInvoice(@PathVariable(name = "id") Long invoiceId){
         Optional<Invoice> response = expenseTrackerService.getInvoiceById(invoiceId);
@@ -85,6 +96,16 @@ public class ExpenseTrackerController {
     @PostMapping(value = "/reprocess-invoice/{id}", produces = "application/json")
     public ResponseEntity reprocessInvoiceId(@PathVariable(name = "id") Long invoiceId){
         Optional<Invoice> response = expenseTrackerService.reprocessInvoiceId(invoiceId);
+        if(response.isEmpty()){
+            return ResponseEntity.badRequest().body(Map.of("error", "Unable to find invoice id " + invoiceId));
+        }else{
+            return ResponseEntity.ok(response.get());
+        }
+    }
+
+    @PostMapping(value = "/update-invoice/{id}", produces = "application/json")
+    public ResponseEntity updateInvoice(@PathVariable(name = "id") Long invoiceId, @RequestBody  Map<String, String> request){
+        Optional<Invoice> response = expenseTrackerService.updateInvoice(invoiceId, request);
         if(response.isEmpty()){
             return ResponseEntity.badRequest().body(Map.of("error", "Unable to find invoice id " + invoiceId));
         }else{

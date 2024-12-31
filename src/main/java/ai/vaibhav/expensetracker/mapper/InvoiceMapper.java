@@ -8,12 +8,14 @@ import org.mapstruct.Mapper;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface InvoiceMapper {
 
     InvoiceDetails toEntity (InvoiceDetailsDto source);
     InvoiceItem toEntity (ItemDto source);
+    List<InvoiceItem> toInvoiceEntity (List<ItemDto> source);
 
     default LocalDateTime convertStringToLocalDateTime(String dateTimeString) {
         if(dateTimeString != null) {

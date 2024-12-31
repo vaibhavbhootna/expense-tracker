@@ -1,10 +1,13 @@
 package ai.vaibhav.expensetracker.service;
 
 import ai.vaibhav.expensetracker.client.InvoiceDetailsDto;
+import ai.vaibhav.expensetracker.client.InvoiceDto;
 import ai.vaibhav.expensetracker.entity.Invoice;
 import ai.vaibhav.expensetracker.entity.InvoiceDetails;
+import ai.vaibhav.expensetracker.entity.InvoiceItem;
 import ai.vaibhav.expensetracker.entity.InvoiceStatus;
 import ai.vaibhav.expensetracker.mapper.InvoiceMapper;
+import ai.vaibhav.expensetracker.repository.InvoiceItemRepository;
 import ai.vaibhav.expensetracker.repository.InvoiceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +31,7 @@ public class InvoiceProcessorService {
     private final ObjectMapper objectMapper;
     private final InvoiceMapper invoiceMapper;
     private final InvoiceRepository invoiceRepository;
+    private final InvoiceItemRepository invoiceItemRepository;
     private final GooglePalmService googlePalmService;
 
     @Scheduled(cron = "0 */1 * ? * *")
@@ -41,13 +45,27 @@ public class InvoiceProcessorService {
     public Invoice processInvoice(Invoice invoice) {
         String response = googlePalmService.readInvoice(invoice.getInvoiceImage().getFileData());
         log.info("Google Palm API response {}", response);
-        InvoiceDetailsDto invoiceDetailsDto;
+        InvoiceDto invoiceDto;
         invoice.setOcrApi("GOOGLE_PALM");
         invoice.setOcrRawResponse(response);
         try {
-            invoiceDetailsDto = objectMapper.readValue(response, InvoiceDetailsDto.class);
-            if(invoiceDetailsDto != null && invoiceDetailsDto.getItems() != null ) {
-                InvoiceDetails invoiceDetails = invoiceMapper.toEntity(invoiceDetailsDto);
+            invoiceDto = objectMapper.readValue(response, InvoiceDto.class);
+            if(invoiceDto != null && invoiceDto.getInvoiceDetails() != null ) {
+                InvoiceDetails invoiceDetails = invoiceMapper.toEntity(invoiceDto.getInvoiceDetails());
+                List<InvoiceItem> invoiceItems = invoiceMapper.toInvoiceEntity(invoiceDto.getItemDetails());
+                invoiceDetails.setItems(invoiceItems);
+
+                CollectionUtils.emptyIfNull(invoiceDetails.getItems()).forEach(i->{
+                   if(i.getItemCommonName() == null){
+                       String commonName = invoiceItemRepository.findItemCommonNameByItemName(i.getItemName().toUpperCase());
+                        i.setItemCommonName(commonName);
+                    }
+                   i.setItemCommonName(i.itemCommonName.toUpperCase().trim());
+
+                   if(i.getItemWeight() == null){
+                       i.setItemWeight(i.getItemQuantity());
+                   }
+                });
                 invoiceDetails.setInvoice(invoice);
                 invoice.setInvoiceDetails(invoiceDetails);
                 invoice.setOcrStatus("SUCCESS");
