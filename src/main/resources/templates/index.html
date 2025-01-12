@@ -5,115 +5,213 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vaibhav Invoice Hub</title>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-
-    <!-- Add Bootstrap CSS (change the URL to the actual Bootstrap CSS file) -->
+    <!-- Add Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #0078d7;
+            color: white;
+        }
+        header .logo {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        header .datetime {
+            font-size: 1em;
+        }
+        nav {
+            background-color: #005a9e;
+            padding: 10px 20px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            font-size: 1.1em;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        main {
+            padding: 20px;
+        }
+        .upload-area {
+            border: 2px dashed #0078d7;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            background-color: white;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .upload-area:hover {
+            background-color: #f1f1f1;
+        }
+        .upload-area.active {
+            background-color: #e9f7ff; /* Light blue background when active */
+        }
+        .upload-area p {
+            margin: 0;
+            font-size: 1.1em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #0078d7;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        button {
+            background-color: #0078d7;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #005a9e;
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="/">Invoice Repo</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="/invoices">Invoices</a>
-            </li>
-        </ul>
-    </div>
+<header>
+    <div class="logo">Invoice Manager</div>
+    <div class="datetime" id="datetime"></div>
+</header>
+<nav>
+    <a class="nav-link" href="/">Home</a>
+    <a class="nav-link" href="/invoices">Invoices</a>
+    <a class="nav-link" href="/dashboard">Dashboard</a>
 </nav>
 
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <div class="mb-3">
-                <form id="uploadForm" enctype="multipart/form-data">
-                    <label for="fileInput" class="form-label">Select or Capture an Invoice</label>
-                    <input type="file" id="fileInput" name="image" accept="image/*" multiple="multiple">
-                </form>
+<main>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="upload-area" id="uploadArea">
+                <p>Drag & drop your invoice image here or click to select</p>
+                <input type="file" id="fileInput" name="image" accept="image/*" multiple="multiple" style="display: none;">
             </div>
         </div>
     </div>
-</div>
 
+    <!-- Bootstrap Modal for displaying API response -->
+    <div class="modal" id="apiResponseModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">API Response</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
 
+                <!-- Modal Body -->
+                <div class="modal-body" id="apiResponseContent">
+                    <!-- API response content will be displayed here -->
+                </div>
 
-<!-- Bootstrap Modal for displaying API response -->
-<div class="modal" id="apiResponseModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title">API Response</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body" id="apiResponseContent">
-                <!-- API response content will be displayed here -->
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-
         </div>
     </div>
-</div>
 
-<!-- Add Bootstrap JS and jQuery (change the URLs to the actual Bootstrap JS and jQuery files) -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Add Bootstrap JS and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<script>
-    document.getElementById('fileInput').addEventListener('change', function () {
-        // Get the selected file
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
-        const files = fileInput.files;
 
-        if (!files) {
-            alert('Please select or capture an image.');
-            return;
-        }
+        // Show the file input when the upload area is clicked
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
 
-        // Create a FormData object and append the file to it
-        const formData = new FormData();
-        formData.append('file', files);
+        // Handle file selection or drop
+        fileInput.addEventListener('change', handleFiles);
+        uploadArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            uploadArea.classList.add('active');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('active');
+        });
+        uploadArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            uploadArea.classList.remove('active');
+            const files = event.dataTransfer.files;
+            handleFiles(files);
+        });
 
-        // Replace 'API_ENDPOINT' with the actual API endpoint URL
-        const apiEndpoint = 'upload-invoices';
+        function handleFiles(files) {
+            if (!files.length) {
+                alert('Please select or capture an image.');
+                return;
+            }
 
-        // Make a POST request to the API endpoint
-        fetch(apiEndpoint, {
-            method: 'POST',
-            body: formData,
-        })
-            .then(response => response.json())
-            .then(data => {
-                // Build the HTML content for the modal
-                let modalContent = '';
+            // Create a FormData object and append the files to it
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append('file', file);
+            }
 
-                for (const [key, value] of Object.entries(data)) {
-                    modalContent += `<strong>${key}:</strong> ${value}<br>`;
-                }
+            // Replace 'API_ENDPOINT' with the actual API endpoint URL
+            const apiEndpoint = 'upload-invoices';
 
-                // Update the modal content
-                document.getElementById('apiResponseContent').innerHTML = modalContent;
-
-                // Show the modal
-                $('#apiResponseModal').modal('show');
+            // Make a POST request to the API endpoint
+            fetch(apiEndpoint, {
+                method: 'POST',
+                body: formData,
             })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error occurred while uploading image and calling API.');
-            });
-    });
-</script>
+                .then(response => response.json())
+                .then(data => {
+                    // Build the HTML content for the modal
+                    let modalContent = '';
 
+                    for (const [key, value] of Object.entries(data)) {
+                        modalContent += `<strong>${key}:</strong> ${value}<br>`;
+                    }
+
+                    // Update the modal content
+                    document.getElementById('apiResponseContent').innerHTML = modalContent;
+
+                    // Show the modal
+                    $('#apiResponseModal').modal('show');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error occurred while uploading image and calling API.');
+                });
+        }
+    </script>
+</main>
 </body>
 </html>

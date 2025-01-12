@@ -3,255 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vaibhav Invoice Hub</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <title>Invoice Management</title>
     <style>
         body {
-            background-color: #f8f9fa;
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
         }
-        .navbar {
-            background-color: #007bff;
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #0078d7;
+            color: white;
         }
-        .navbar-brand, .nav-link {
-            color: white !important;
-        }
-        .navbar-brand:hover, .nav-link:hover {
-            color: #ffdd57 !important;
-        }
-        .invoices {
-            margin-top: 20px;
-        }
-        .invoice-card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin: 20px;
-            padding: 20px;
-            transition: transform 0.2s;
-        }
-        .invoice-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        }
-        .invoice-header {
-            font-size: 1.2rem;
+        header .logo {
+            font-size: 1.5em;
             font-weight: bold;
-            color: #343a40;
-            margin-bottom: 10px;
         }
-        .invoice-details label {
-            font-weight: bold;
-            color: #6c757d;
+        header .datetime {
+            font-size: 1em;
         }
-        .expand-button {
-            cursor: pointer;
-            color: #007bff;
+        nav {
+            background-color: #005a9e;
+            padding: 10px 20px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+            font-size: 1.1em;
+        }
+        nav a:hover {
             text-decoration: underline;
         }
-        .card-header {
-            background-color: #e9ecef;
-            border-bottom: 1px solid #dee2e6;
+        main {
+            padding: 20px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
             text-align: left;
+            border: 1px solid #ddd;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #0078d7;
+            color: white;
         }
-        .hidden {
-            display: none;
+        tr:hover {
+            background-color: #f1f1f1;
         }
-        .imageContainer > img:hover {
-            transform: scale(1.1);
-            transition: transform 0.3s ease;
+        button {
+            background-color: #0078d7;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
         }
-        .filter-container {
-            margin-top: 20px;
+        button:hover {
+            background-color: #005a9e;
         }
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark">
-    <a class="navbar-brand" href="/">Vaibhav Invoice Hub</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link" href="/invoices">Invoices</a>
-            </li>
-        </ul>
-    </div>
+<header>
+    <div class="logo">Invoice Manager</div>
+    <div class="datetime" id="datetime"></div>
+</header>
+<nav>
+    <a class="nav-link" href="/">Home</a>
+    <a class="nav-link" href="/invoices">Invoices</a>
+    <a class="nav-link" href="/dashboard">Dashboard</a>
 </nav>
-<div class="container-fluid">
-    <div class="card">
-        <div class="card-header">
-            <h5 class="card-title">Expense Summary</h5>
-            <p class="card-text">Month: <span id="month"></span>, Year: <span id="year"></span></p>
-        </div>
-        <div class="card-body">
-            <p class="card-text">Total Expense: $<span id="totalExpense"></span></p>
-            <p class="card-text">Frequently Bought Items:</p>
-            <ul class="list-group" id="frequentItemsList">
-                <!-- Frequent items will be dynamically added here -->
-            </ul>
-            <p class="card-text">High Priced Items:</p>
-            <ul class="list-group" id="highPricedItem">
-                <!-- Frequent items will be dynamically added here -->
-            </ul>
-        </div>
-    </div>
-
-    <div class="filter-container">
-        <select id="filter" onchange="fetchInvoices()" class="form-control">
-            <option value="all">All</option>
-            <option selected value="thisMonth">This Month</option>
-            <option value="thisWeek">This Week</option>
-            <option value="today">Today</option>
-        </select>
-    </div>
-
-    <div id="invoiceContainer" class="invoices row">
-        <!-- Invoice cards will be dynamically added here -->
-    </div>
-</div>
-
+<main>
+    <h1>Invoices</h1>
+    <table id="invoiceTable">
+        <thead>
+        <tr>
+            <th>Invoice Upload Date</th>
+            <th>Invoice Date</th>
+            <th>Total Amount</th>
+            <th>Store Name</th>
+            <th>Details</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Data will be inserted here dynamically -->
+        </tbody>
+    </table>
+</main>
 <script>
+    // Function to fetch and display the current date and time
+    function updateDateTime() {
+        const now = new Date();
+        document.getElementById('datetime').textContent = now.toLocaleString();
+    }
+    setInterval(updateDateTime, 1000); // Update every second
+
+    // Function to fetch invoice data and populate the table
     async function fetchInvoices() {
-        $('#invoiceContainer').html('');
-        try {
-            const response = await fetch('get-all-invoices?range='+ $("#filter").val());
+        const response = await fetch('/get-all-invoices');
+        const invoices = await response.json();
+        const tableBody = document.querySelector('#invoiceTable tbody');
+        tableBody.innerHTML = ''; // Clear any existing rows
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const invoices = await response.json();
-            invoices.forEach(invoice => {
-                const card = document.createElement('div');
-                card.className = 'invoice-card col-md-4 col-sm-6 col-xs-12';
-
-                const header = document.createElement('div');
-                header.className = 'invoice-header';
-                header.textContent = `${invoice.invoiceDetails.storeName} #${invoice.id}`;
-                card.appendChild(header);
-
-                const details = document.createElement('div');
-                details.className = 'invoice-details';
-                details.innerHTML = `
-                <div class="imageContainer">
-                    <img src="data:image/png;base64,${invoice.invoiceImage.fileData}" width="100px"/>
-                </div>
-                <label>Invoice DateTime:</label> <input type="text" id="update-invoiceDateTime-${invoice.id}" value="${invoice.invoiceDetails.invoiceDateTime}"><br>
-                <label>Invoice Number:</label> ${invoice.invoiceDetails.invoiceNumber}<br>
-                <label>Uploaded at:</label> ${invoice.invoiceUploadDate}<br>
-                <label>Amount:</label> ${invoice.invoiceDetails.totalAmount}<br>
-                <span class="expand-button" onclick="expandDetails('hidden-${invoice.id}')">Expand Details</span>
-                <span class="expand-button" onclick="reprocess(${invoice.id})">Reprocess</span>
-                <span class="expand-button" onclick="updateInvoice(${invoice.id})">Update Invoice</span>
-            `;
-                card.appendChild(details);
-
-                const hiddenDetails = document.createElement('table');
-                hiddenDetails.id = 'hidden-' + invoice.id;
-                hiddenDetails.className = 'hidden';
-                let modalContent = '';
-                let headerRow = false;
-                for (const [itemKey, itemValue] of Object.entries(invoice.invoiceDetails.items)) {
-                    if (!headerRow) {
-                        modalContent += '<tr>';
-                        for (const [key, value] of Object.entries(itemValue)) {
-                            modalContent += `<td>${key}</td>`;
-                        }
-                        modalContent += '</tr>';
-                        headerRow = true;
-                    }
-                    modalContent += '<tr>';
-                    for (const [key, value] of Object.entries(itemValue)) {
-                        modalContent += `<td>${value}</td>`;
-                    }
-                    modalContent += '</tr>';
-                }
-                hiddenDetails.innerHTML = modalContent;
-                card.appendChild(hiddenDetails);
-                $('#invoiceContainer').append(card);
-            });
-            $('.datetimepicker').datetimepicker({
-                format: 'YYYY-MM-DD HH:mm:ss'
-            });
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
+        invoices.forEach(invoice => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                    <td>${new Date(invoice.invoiceUploadDate).toLocaleString()}</td>
+                    <td>${new Date(invoice.invoiceDate).toLocaleDateString()}</td>
+                    <td>$${invoice.totalAmount.toFixed(2)}</td>
+                    <td>${invoice.storeName}</td>
+                    <td><button onclick="showDetails('${invoice.id}')">Show Details</button></td>
+                `;
+            tableBody.appendChild(row);
+        });
     }
 
-    function updateInvoice(id) {
-        const elementId = '#update-invoiceDateTime-' + id;
-        const invoiceDateTime = $(elementId).val();
-        const data = { "invoiceDateTime": invoiceDateTime };
-
-        const requestOptions = {
-            method: 'POST',
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
-        };
-
-        fetch("update-invoice/" + id, requestOptions).catch(error => console.log('error', error));
+    // Function to handle showing more details (redirecting to another page)
+    function showDetails(id) {
+        window.location.href = `/invoice-details?id=${encodeURIComponent(id)}`;
     }
 
-    function expandDetails(id) {
-        const hiddenDetails = document.querySelector('#' + id);
-        hiddenDetails.classList.toggle('hidden');
-    }
 
-    function showSummary() {
-        fetch('get-summary')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('month').innerText = data.month;
-                document.getElementById('year').innerText = data.year;
-                document.getElementById('totalExpense').innerText = data.totalExpense.toFixed(2);
-
-                const frequentItemsList = document.getElementById('frequentItemsList');
-                for (const itemName in data.frequentlyBought) {
-                    if (data.frequentlyBought.hasOwnProperty(itemName)) {
-                        const listItem = document.createElement('li');
-                        listItem.className = 'list-group-item';
-                        listItem.innerText = `${itemName}: ${data.frequentlyBought[itemName]}`;
-                        frequentItemsList.appendChild(listItem);
-                    }
-                }
-
-                const highPricedItem = document.getElementById('highPricedItem');
-                for (const itemName in data.highPricedItem) {
-                    if (data.highPricedItem.hasOwnProperty(itemName)) {
-                        const listItem = document.createElement('li');
-                        listItem.className = 'list-group-item';
-                        listItem.innerText = `${itemName}: ${data.highPricedItem[itemName]}`;
-                        highPricedItem.appendChild(listItem);
-                    }
-                }
-            })
-            .catch(error => console.error('Error fetching summary:', error));
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchInvoices();
-        showSummary();
-    });
+    // Fetch invoices on page load
+    fetchInvoices();
 </script>
 </body>
 </html>

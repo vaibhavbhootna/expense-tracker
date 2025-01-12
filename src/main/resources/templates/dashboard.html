@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Management</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light background for contrast */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background-color: #007bff; /* Bootstrap primary blue */
+            color: white; /* White text for contrast */
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .datetime {
+            font-size: 1rem;
+        }
+
+        nav {
+            background-color: #007bff; /* Bootstrap primary blue */
+        }
+
+        .nav-link {
+            color: white !important; /* White links */
+            margin-right: 15px; /* Spacing between links */
+        }
+
+        .nav-link:hover {
+            color: #d0d0d0; /* Lighter color on hover */
+        }
+
+        .card {
+            margin: 20px 0; /* Margin around the card */
+        }
+
+        .card-header {
+            background-color: #007bff; /* Bootstrap primary blue */
+            color: white; /* White text for contrast */
+        }
+
+        .list-group-item {
+            background-color: #ffffff; /* White background for items */
+            border: 1px solid #ddd; /* Light border for items */
+            border-radius: 5px; /* Rounded corners for items */
+            transition: background-color 0.2s; /* Smooth background change on hover */
+        }
+
+        .list-group-item:hover {
+            background-color: #f1f1f1; /* Light gray background on hover */
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logo">Invoice Manager</div>
+    <div class="datetime" id="datetime"></div>
+</header>
+<nav class="navbar navbar-expand">
+    <div class="container">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/invoices">Invoices</a>
+        <a class="nav-link" href="/dashboard">Dashboard</a>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Expense Summary</h5>
+            <p class="card-text small">Month: <span id="month"></span>, Year: <span id="year"></span></p>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Total Expense: <strong>$<span id="totalExpense"></span></strong></p>
+            <p class="card-text"><strong>Frequently Bought Items:</strong></p>
+            <ul class="list-group mb-3" id="frequentItemsList">
+                <!-- Frequent items will be dynamically added here -->
+            </ul>
+            <p class="card-text"><strong>High Priced Items:</strong></p>
+            <ul class="list-group" id="highPricedItem">
+                <!-- High priced items will be dynamically added here -->
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showSummary() {
+        fetch('get-summary')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('month').innerText = data.month;
+                document.getElementById('year').innerText = data.year;
+                document.getElementById('totalExpense').innerText = data.totalExpense.toFixed(2);
+
+                const frequentItemsList = document.getElementById('frequentItemsList');
+                frequentItemsList.innerHTML = ''; // Clear previous items
+                for (const itemName in data.frequentlyBought) {
+                    if (data.frequentlyBought.hasOwnProperty(itemName)) {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'list-group-item';
+                        listItem.innerText = `${itemName}: ${data.frequentlyBought[itemName]}`;
+                        frequentItemsList.appendChild(listItem);
+                    }
+                }
+
+                const highPricedItem = document.getElementById('highPricedItem');
+                highPricedItem.innerHTML = ''; // Clear previous items
+                for (const itemName in data.highPricedItem) {
+                    if (data.highPricedItem.hasOwnProperty(itemName)) {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'list-group-item';
+                        listItem.innerText = `${itemName}: ${data.highPricedItem[itemName]}`;
+                        highPricedItem.appendChild(listItem);
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching summary:', error));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        showSummary();
+    });
+</script>
+</body>
+</html>

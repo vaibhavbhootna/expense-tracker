@@ -34,10 +34,10 @@ public class InvoiceProcessorService {
     private final InvoiceItemRepository invoiceItemRepository;
     private final GooglePalmService googlePalmService;
 
-    @Scheduled(cron = "0 */1 * ? * *")
+    @Scheduled(fixedDelay = 600_000, initialDelay = 10000)
     @Transactional
     public void processInvoices(){
-        List<Invoice> pendingInvoices = invoiceRepository.findByOcrStatus("PENDING", PageRequest.of(0, 2));
+        List<Invoice> pendingInvoices = invoiceRepository.findByOcrStatus("PENDING", PageRequest.of(0, 1));
         pendingInvoices.forEach(this::processInvoice);
     }
 
@@ -56,14 +56,14 @@ public class InvoiceProcessorService {
                 invoiceDetails.setItems(invoiceItems);
 
                 CollectionUtils.emptyIfNull(invoiceDetails.getItems()).forEach(i->{
-                   if(i.getItemCommonName() == null){
-                       String commonName = invoiceItemRepository.findItemCommonNameByItemName(i.getItemName().toUpperCase());
-                        i.setItemCommonName(commonName);
+                    if(i.getItemName() != null) {
+                        String commonName = invoiceItemRepository.findItemCommonNameByItemName(i.getItemName().toUpperCase());
+                        if (commonName != null) {
+                            i.setItemCommonName(commonName);
+                        }
                     }
-                   i.setItemCommonName(i.itemCommonName.toUpperCase().trim());
-
                    if(i.getItemWeight() == null){
-                       i.setItemWeight(i.getItemQuantity());
+                       i.setItemWeight(i.getItemQuantity().toString());
                    }
                 });
                 invoiceDetails.setInvoice(invoice);

@@ -1,9 +1,12 @@
 package ai.vaibhav.expensetracker.integration;
 
+import ai.vaibhav.expensetracker.dto.PurchaseProjection;
 import ai.vaibhav.expensetracker.entity.Image;
 import ai.vaibhav.expensetracker.entity.Invoice;
 import ai.vaibhav.expensetracker.service.ExpenseTrackerService;
-import lombok.RequiredArgsConstructor;
+import ai.vaibhav.expensetracker.service.InvoiceProcessorService;
+import ai.vaibhav.expensetracker.service.PurchaseService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,6 +30,15 @@ public class InvoiceReaderBot extends TelegramLongPollingBot {
 
     @Autowired
     private ExpenseTrackerService expenseTrackerService;
+    @Autowired
+    private PurchaseService purchaseService;
+
+    @Autowired
+    private InvoiceProcessorService invoiceProcessorService;
+
+    @Autowired
+    private ObjectMapper jacksonObjectMapper;
+
     public InvoiceReaderBot() {
         super("6589480967:AAEAOzCHqL7tbXEABtK7NFuA65hVF24fS5Q");
     }
@@ -47,14 +59,40 @@ public class InvoiceReaderBot extends TelegramLongPollingBot {
                             FilenameUtils.getExtension(imageFile.getName()), null);
                     String senderName = update.getMessage().getChat().getFirstName();
                     Invoice invoice = expenseTrackerService.saveInvoice(image, senderName, "TELEGRAM");
-                    sendReply(update.getMessage(), "Invoice saved. Status " + invoice);
+                    sendReply(update.getMessage(), "Invoice saved. InvoiceDetails "
+                    + "Invoice ID " + invoice.getId());
+                    invoiceProcessorService.processInvoices();
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
         } else {
-            sendReply(update.getMessage(), "I can only handle photo messages.");
+            StringBuilder beautifiedString = new StringBuilder();
+            String command = update.getMessage().getText();
+            if(command.startsWith("/f")) {
+                handleFind(update, command, beautifiedString);
+            }else {
+                sendReply(update.getMessage(), "I can only handle photo messages.");
+            }
+
         }
+    }
+
+    private void handleFind(Update update, String command, StringBuilder beautifiedString) {
+        command = "%" + command.replaceFirst("/f", "").strip().toUpperCase() + "%";
+        List<PurchaseProjection> lastPurchases = purchaseService.getLastPurchases(command);
+
+        for (PurchaseProjection purchase : lastPurchases) {
+            beautifiedString
+                    .append("\n")
+                    .append(purchase.getItemCommonName())
+                    .append(" - ")
+                    .append(purchase.getInvoiceDate()) // Assuming getId() method exists
+                    .append(" - ")
+                    .append(purchase.getItemAmount());// Assuming getItemName() method exists
+
+        }
+        sendReply(update.getMessage(), beautifiedString.toString());
     }
 
     private File downloadPhotoByFileId(String fileId) {

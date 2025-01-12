@@ -29,4 +29,5 @@ public interface InvoiceItemRepository extends JpaRepository<InvoiceItem,Long> {
 
     @Query(value = "select upper(i.item_common_name) from  invoice_item i where upper(i.item_name) = upper(:itemName) LIMIT 1", nativeQuery = true)
     String findItemCommonNameByItemName(String itemName);
+
 }

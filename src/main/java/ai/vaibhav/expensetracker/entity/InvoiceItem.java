@@ -6,7 +6,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
-@Entity(name = "INVOICE_ITEM")
+@Table(name = "INVOICE_ITEM")
+@Entity
 public class InvoiceItem {
 
     @Id
@@ -23,7 +24,7 @@ public class InvoiceItem {
     public Double itemQuantity;
 
     @JsonProperty("Weight")
-    public Double itemWeight;
+    public String itemWeight;
 
     @JsonProperty("Amount")
     public Double itemAmount;

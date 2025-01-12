@@ -1,9 +1,10 @@
 package ai.vaibhav.expensetracker.service;
 
+import ai.vaibhav.expensetracker.dto.InvoiceDto;
 import ai.vaibhav.expensetracker.dto.Summary;
 import ai.vaibhav.expensetracker.entity.Image;
 import ai.vaibhav.expensetracker.entity.Invoice;
-import ai.vaibhav.expensetracker.entity.InvoiceDetails;
+import ai.vaibhav.expensetracker.entity.InvoiceItem;
 import ai.vaibhav.expensetracker.entity.InvoiceStatus;
 import ai.vaibhav.expensetracker.repository.ImageRepository;
 import ai.vaibhav.expensetracker.repository.InvoiceDetailsRepository;
@@ -11,13 +12,11 @@ import ai.vaibhav.expensetracker.repository.InvoiceItemRepository;
 import ai.vaibhav.expensetracker.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -73,19 +72,27 @@ public class ExpenseTrackerService {
     }
 
     @Transactional(readOnly = true)
-    public List<Invoice> getAllInvoice(String criteria, String status) {
+    public List<InvoiceDto> getAllInvoice(String criteria, String status) {
         InvoiceStatus invoiceStatus;
         LocalDateTime startDate;
+        List<Invoice> invoices = new ArrayList<>();
         if ("today".equalsIgnoreCase(criteria)) {
             startDate = LocalDate.now().atStartOfDay();
         } else if ("thisWeek".equalsIgnoreCase(criteria)) {
             startDate = LocalDate.now().with(java.time.DayOfWeek.MONDAY).atStartOfDay();
         } else if ("thisMonth".equalsIgnoreCase(criteria)) {
             startDate = LocalDate.now().withDayOfMonth(1).atStartOfDay();
-        } else {
-            return invoiceRepository.findAll().stream().filter(i -> i.getInvoiceDetails() != null).collect(Collectors.toList());
+        } else{
+            startDate = LocalDate.of(2000,1,1).atStartOfDay();
         }
-        return invoiceRepository.findInvoices(startDate);
+        invoices = invoiceRepository.findInvoices(startDate).stream().filter(i -> i.getInvoiceDetails() != null).toList();
+        return invoices.stream().map(i-> InvoiceDto.builder()
+                .id(i.getId())
+                .invoiceUploadDate(i.getInvoiceUploadDate())
+                .invoiceDate(i.getInvoiceDetails().getInvoiceDateTime())
+                .storeName(i.getInvoiceDetails().getStoreName())
+                .totalAmount(i.getInvoiceDetails().getTotalAmount())
+                .build()).toList();
     }
 
     @Transactional(readOnly = true)
@@ -148,9 +155,13 @@ public class ExpenseTrackerService {
         return response;
     }
 
-    public Optional<Invoice> updateInvoice(Long invoiceId, Map<String, String> request) {
-        Optional<Invoice> invoice = invoiceRepository.findById(invoiceId);
-        invoice.ifPresent(value -> value.getInvoiceDetails().setInvoiceDateTime(LocalDate.parse(request.get("invoiceDateTime")).atStartOfDay()));
-        return Optional.of(invoiceRepository.saveAndFlush(invoice.get()));
+    public Optional<InvoiceItem> updateInvoiceItem(Long invoiceId, Map<String, String> request) {
+        Optional<InvoiceItem> invoice = invoiceItemRepository.findById(invoiceId);
+        if(invoice.isPresent()) {
+            invoice.get().setItemCommonName(request.get("itemCommonName"));
+            invoice.get().setItemName(request.get("itemName"));
+            return Optional.of(invoiceItemRepository.saveAndFlush(invoice.get()));
+        }
+        return Optional.empty();
     }
 }

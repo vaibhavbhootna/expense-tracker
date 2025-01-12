@@ -64,25 +64,31 @@ public class GooglePalmService {
     }
 
     private static String extractResponse(Response response) throws IOException {
-        if(response != null && response.body() != null) {
-            String responseString = response.body().string();
-            JSONObject jsonObject = new JSONObject(responseString);
-            JSONArray candidates = jsonObject.getJSONArray("candidates");
-            JSONObject content = candidates.getJSONObject(0).getJSONObject("content");
-            JSONArray parts = content.getJSONArray("parts");
-            JSONObject part = parts.getJSONObject(0);
-            String jsonText = part.getString("text");
+        try {
+            if(response != null && response.body() != null) {
+                String responseString = response.body().string();
+                JSONObject jsonObject = new JSONObject(responseString);
+                JSONArray candidates = jsonObject.getJSONArray("candidates");
+                JSONObject content = candidates.getJSONObject(0).getJSONObject("content");
+                JSONArray parts = content.getJSONArray("parts");
+                JSONObject part = parts.getJSONObject(0);
+                String jsonText = part.getString("text");
 
-            jsonText = jsonText.replaceAll("\\n","").replace("```json", "").replace("```", "").trim();
+                jsonText = jsonText.replaceAll("\\n","").replace("```json", "").replace("```", "").trim();
 
-            // Parse the extracted JSON text
-            if(jsonText.trim().startsWith("[")) {
-                JSONArray jsonArray = new JSONArray(jsonText);
-                return jsonArray.getJSONObject(0).toString(2);
-            }else{
-                JSONObject node = new JSONObject(jsonText);
-                return node.toString(2);
+                // Parse the extracted JSON text
+                if(jsonText.trim().startsWith("[")) {
+                    JSONArray jsonArray = new JSONArray(jsonText);
+                    return jsonArray.getJSONObject(0).toString(2);
+                }else{
+                    JSONObject node = new JSONObject(jsonText);
+                    return node.toString(2);
+                }
             }
+        }catch (Exception e){
+            assert response.body() != null;
+            log.error("Unable to extract response from {}", e, response.body().string());
+            throw e;
         }
         return null;
     }

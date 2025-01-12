@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            background-color: #0078d7;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+        main {
+            padding: 20px;
+        }
+        .invoice-details, .item-list {
+            margin-top: 20px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #0078d7;
+            color: white;
+        }
+        img {
+            max-width: 300px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .back-button {
+            margin-top: 20px;
+            padding: 10px 15px;
+            color: white;
+            background-color: #0078d7;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            background-color: #005a9e;
+        }
+        /* Zoom Modal Styles */
+        .zoom-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .zoom-modal img {
+            max-width: 90%;
+            max-height: 90%;
+            cursor: grab;
+        }
+        .zoom-modal img:active {
+            cursor: grabbing;
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            color: #0078d7;
+            border: none;
+            font-size: 20px;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Invoice Details</h1>
+</header>
+<main>
+    <a class="back-button" href="invoices">Back to Invoices</a>
+    <section class="invoice-details">
+        <h2>General Information</h2>
+        <p><strong>Invoice Number:</strong> <span id="invoiceNumber"></span></p>
+        <p><strong>Store Name:</strong> <span id="storeName"></span></p>
+        <p><strong>Store Address:</strong> <span id="storeAddress"></span></p>
+        <p><strong>Invoice Date:</strong> <span id="invoiceDate"></span></p>
+        <p><strong>Total Amount:</strong> SGD <span id="totalAmount"></span></p>
+        <p><strong>Payment Mode:</strong> <span id="paymentMode"></span></p>
+        <img id="invoiceImage" alt="Invoice Image Preview" style="display: none">
+        <button class="back-button" onclick="openZoomModal()">Show Invoice Image</button>
+    </section>
+    <section class="item-list">
+        <h2>Item List</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Item Name</th>
+                <th>Common Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody id="itemTable">
+            <!-- Items will be dynamically populated here -->
+            </tbody>
+        </table>
+    </section>
+
+</main>
+
+<!-- Zoom Modal -->
+<div class="zoom-modal" id="zoomModal">
+    <button class="close-modal" onclick="closeZoomModal()">X</button>
+    <img id="zoomedImage" alt="Zoomed Invoice Image">
+</div>
+
+<script>
+    // Extract query parameter
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Function to fetch and display invoice details
+    async function fetchInvoiceDetails() {
+        const id = getQueryParam('id');
+        if (!id) {
+            alert('Invalid Invoice Id!');
+            return;
+        }
+
+        // Fetch the invoice details
+        try {
+            const response = await fetch(`http://localhost:3000/get-invoice/${encodeURIComponent(id)}`);
+            const data = await response.json();
+
+            // Populate general information
+            document.getElementById('invoiceNumber').textContent = data.invoiceDetails.invoiceNumber;
+            document.getElementById('storeName').textContent = data.invoiceDetails.storeName;
+            document.getElementById('storeAddress').textContent = data.invoiceDetails.storeAddress;
+            document.getElementById('invoiceDate').textContent = new Date(data.invoiceDetails.invoiceDateTime).toLocaleDateString();
+            document.getElementById('totalAmount').textContent = data.invoiceDetails.totalAmount.toFixed(2);
+            document.getElementById('paymentMode').textContent = data.invoiceDetails.paymentMode;
+
+            // Display invoice image
+            const imgElement = document.getElementById('invoiceImage');
+            imgElement.src = `data:${data.invoiceImage.fileType};base64,${data.invoiceImage.fileData}`;
+
+            // Populate items in the table
+            const itemTable = document.getElementById('itemTable');
+            data.invoiceDetails.items.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                        <td>${item.id}</td>
+                        <td><input type="text" value="${item.Name}" id="itemName-${item.id}"></td>
+                        <td><input type="text" value="${item['Common Name']}" id="commonName-${item.id}"></td>
+                        <td><input type="number" value="${item.Qty}" id="quantity-${item.id}" min="1"></td>
+                        <td><input type="number" value="${item.Price.toFixed(2)}" id="price-${item.id}" min="0" step="0.01"></td>
+                        <td>SGD ${item.Amount.toFixed(2)}</td>
+                        <td><button onclick="updateItem(${item.id})">Save</button></td>
+                    `;
+                itemTable.appendChild(row);
+            });
+        } catch (error) {
+            console.error('Error fetching invoice details:', error);
+            alert('Failed to load invoice details.');
+        }
+    }
+
+    // Function to update item
+    async function updateItem(itemId) {
+        const itemName = document.getElementById(`itemName-${itemId}`).value;
+        const commonName = document.getElementById(`commonName-${itemId}`).value;
+        const quantity = document.getElementById(`quantity-${itemId}`).value;
+        const price = document.getElementById(`price-${itemId}`).value;
+
+        // Construct data to be sent
+        const updateData = {
+            itemName,
+            itemCommonName: commonName,
+            qty: quantity,
+            price: parseFloat(price)
+        };
+
+        // Send update request
+        try {
+            const response = await fetch(`http://localhost:3000/update-invoice-item/${itemId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updateData)
+            });
+
+            if (response.ok) {
+                alert('Item updated successfully!');
+            } else {
+                alert('Failed to update item.');
+            }
+        } catch (error) {
+            console.error('Error updating item:', error);
+            alert('Failed to update item.');
+        }
+    }
+
+    // Zoom Modal Functions
+    function openZoomModal() {
+        const zoomModal = document.getElementById('zoomModal');
+        const zoomedImage = document.getElementById('zoomedImage');
+        const invoiceImage = document.getElementById('invoiceImage');
+
+        // Set zoomed image source
+        zoomedImage.src = invoiceImage.src;
+
+        zoomModal.style.display = "flex";
+    }
+
+    function closeZoomModal() {
+        const zoomModal = document.getElementById('zoomModal');
+        zoomModal.style.display = "none";
+    }
+
+    // Fetch invoice details on page load
+    document.addEventListener('DOMContentLoaded', fetchInvoiceDetails);
+</script>
+</body>
+</html>
